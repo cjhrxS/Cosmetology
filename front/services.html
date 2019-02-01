@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Services</title>
+    <link rel="stylesheet" href="public/css/bootstrap.min.css">
+    <link rel="stylesheet" href="public/css/datepicker.css">
+</head>
+<body>
+
+        <h1 style="text-align: center">Add Service</h1>
+        <div class="container" style="margin-bottom: 100px;">
+            <div class="row" style="justify-content: center; align-items: center;">
+                <div class="col-4">
+                    <form id="addService">
+                            <div class="form-group" style="margin-top: 70px;">
+                                    <label for="inputId">ID</label> 
+                                    <input type="text" class="form-control" id="inputId" placeholder="Enter Id">
+                                 </div>
+                       <div class="form-group">
+                          <label for="inputName">Name</label> 
+                          <input type="text" class="form-control" id="inputName" placeholder="Enter Name">
+                       </div>
+                        <div class="form-group">
+                            <label for="inputPrice">Price</label>
+                            <input type="number" min="0.0" step="any" class="form-control" id="inputPrice" placeholder="Enter Price">
+                        </div>
+                        <div style="text-align: right">
+                                <button type="submit" class="btn btn-success">Add</button>
+                            </div>
+                        </form>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <br>
+
+        <div class="text-center">
+                <h1>Services</h1>
+                
+                <table class="table" id="servicesTable">
+                   <thead>
+                      <tr>
+                       <th>Id</th>
+                       <th>Name</th>
+                       <th>Price</th>
+                       </tr>
+                   </thead>
+                   <tbody>
+                       
+                   </tbody>
+                    
+                </table>
+            </div>
+    
+
+
+
+
+        <script type="text/javascript" src="public/js/jquery.min.js"></script>
+<script type="text/javascript" src="public/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="public/js/datepicker.js"></script>
+<script src="https://unpkg.com/ionicons@4.4.7/dist/ionicons.js"></script>
+<script type="text/javascript" src="public/js/index.js"></script>
+<script>
+let serverURL = "http://localhost:8080/services";
+$(document).ready(function(){
+    let token = window.localStorage.getItem("auth_token");
+    if(token){
+            $.ajaxSetup({
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+    }
+
+    getServices();
+
+    $("#addService").submit(function(e){
+            
+            e.preventDefault();
+           addService();
+             
+        })
+
+});
+
+
+function getServices(){
+        $.ajax({
+            url: serverURL,
+            method: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            success: function(response){
+                console.log(response);
+                $("#servicesTable tbody").empty;
+                $.each(response, function(key, value){
+                    
+                    $("#servicesTable tbody").append(
+                        `
+                        <tr>
+    
+                        <td>${value.id}</td>    
+                        <td>${value.nameProcedure}</td>    
+                        <td>${value.price}</td>    
+                        <td>
+                        <button class="btn btn-info btnUpdateClass" id="btnUpdate-${value.id}">Update</button>
+                        </td>
+                        
+                        </tr>
+                        `);
+                        
+                       
+                    
+                });
+            }
+        });
+    };
+
+    function addService(){
+        
+        let nameProcedure = $("#inputName").val();
+        let price = $("#inputPrice").val();
+        
+      
+       let service = {
+           
+            nameProcedure: nameProcedure,
+                price: price
+                            };
+            
+            $.ajax({
+             
+                url: serverURL,
+                method: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(service),
+                complete: function(data){
+                    if(data.status == 201){
+                        alert("Service Added");
+                        $("servicesTable tbody").empty();
+                       getServices();
+                    }
+                }
+            });
+    }
+
+</script>
+</body>
+</html>
